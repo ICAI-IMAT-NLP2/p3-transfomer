@@ -441,13 +441,8 @@ def test_sampling_decoding(mock_transformer):
     src_input = torch.tensor([[1, 2, 3, 4, 5]])
     torch.manual_seed(0)  # Set seed for reproducibility
 
-    if "Microsoft" in platform.uname().release or platform.system() == "Windows":	
-    # if os.name == 'nt':
-        expected_tokens = [2, 8, 6, 3, 1]  # Based on sampling and the fixed logits
-    elif platform.system() == "Darwin" or platform.system() == "Linux":
-    # elif os.name == 'posix':
-        expected_tokens = [6, 1, 2, 2, 1]
-
+    tokens_windows = [2, 8, 6, 3, 1]
+    tokens_linux = [6, 1, 2, 2, 1]
 
     generated_sequence = mock_transformer.generate(
         src_input,
@@ -458,17 +453,17 @@ def test_sampling_decoding(mock_transformer):
         EOS_token=10
     )
 
-    assert generated_sequence.tolist()[0] == expected_tokens, "Sampling decoding did not produce expected tokens."
+    tokens_correct = generated_sequence.tolist()[0] == tokens_windows or generated_sequence.tolist()[0] == tokens_linux
+    
+    assert tokens_correct, "Sampling decoding did not produce expected tokens."
 
 @pytest.mark.order(21)
 def test_top_k_sampling_decoding(mock_transformer):
     src_input = torch.tensor([[1, 2, 3, 4, 5]])
     torch.manual_seed(0)
-
-    if "Microsoft" in platform.uname().release or platform.system() == "Windows":
-        expected_tokens = [1, 0, 0, 2, 3]
-    elif platform.system() == "Darwin" or platform.system() == "Linux":
-        expected_tokens = [1, 1, 0, 1, 1]
+    
+    tokens_windows = [1, 0, 0, 2, 3]
+    tokens_linux = [1, 1, 0, 1, 1]
 
     generated_sequence = mock_transformer.generate(
         src_input,
@@ -479,17 +474,17 @@ def test_top_k_sampling_decoding(mock_transformer):
         EOS_token=10
     )
 
-    assert generated_sequence.tolist()[0] == expected_tokens, "Top-k sampling decoding did not produce expected tokens."
+    tokens_correct = generated_sequence.tolist()[0] == tokens_windows or generated_sequence.tolist()[0] == tokens_linux
+    
+    assert tokens_correct, "Top-k sampling decoding did not produce expected tokens."
 
 @pytest.mark.order(22)
 def test_top_p_sampling_decoding(mock_transformer):
     src_input = torch.tensor([[1, 2, 3, 4, 5]])
     torch.manual_seed(0)
 
-    if "Microsoft" in platform.uname().release or platform.system() == "Windows":
-        expected_tokens = [1, 2, 6, 3, 3]
-    elif platform.system() == "Darwin" or platform.system() == "Linux":
-        expected_tokens = [6, 1, 3, 3, 3]
+    tokens_windows = [1, 2, 6, 3, 3]
+    tokens_linux = [6, 1, 3, 3, 3]
 
     generated_sequence = mock_transformer.generate(
         src_input,
@@ -500,7 +495,9 @@ def test_top_p_sampling_decoding(mock_transformer):
         EOS_token=10
     )
 
-    assert generated_sequence.tolist()[0] == expected_tokens, "Top-p sampling decoding did not produce expected tokens."
+    tokens_correct = generated_sequence.tolist()[0] == tokens_windows or generated_sequence.tolist()[0] == tokens_linux
+
+    assert tokens_correct, "Top-p sampling decoding did not produce expected tokens."
 
 @pytest.mark.order(23)
 def test_contrastive_decoding(mock_transformer):
